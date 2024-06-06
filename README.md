@@ -1,4 +1,4 @@
-# THREE 和 Cesium 深度融合技术分享
+# THREE 和 Cesium 深度融合技术总结
 
 点击进行预览：[THREE 和 Cesium 深度融合示例](https://htmlpreview.github.io/?https://github.com/zan1105/ThreeJS_CesiumJS/blob/main/index.html)
 
@@ -137,3 +137,36 @@ Cesium 的渲染能力较差，使用 THREE 的天空盒可以提高渲染效果
 此时首先想到的是能不能根据一定条件透过这个平面看到 THREE 的天空。要实现这个逻辑，首先要确定这个平面能否启用透明度，然后要确定这个平面的透明度如何控制。能实现这两个逻辑就说明可以透过平面看到 THREE 的天空了。
 
 THREE 中的所有材质都可以启用透明度，现在的问题就是如何控制这个平面的透明度。我们要的效果是地面的地方显示地面，天空的地方显示天空。所以核心问题是 Cesium 中如何区分地面和天空，没错，就是深度值，地面的深度值都小于 1，而天空的深度值等于 1（深度最大为 1）。所以只要将深度值 为 1 的地方设置透明度。具体设置多少就看相机在什么高度开始出现 Cesium 的天空，在什么高度 THREE 的天空完全消失了。
+
+## 4. 融合后原 THREE 受影响的内容
+
+引入 Cesium 后对会对 THREE 一些对象进行改，受影响的部分（可能出现问题的地方）主要和这些对象有关。
+
+1. **控制器/相机**：加入地球后，原 THREE 的控制器会被禁止，使用 Cesium 的控制器控制相机。
+
+<blockquote>
+
+-   控制器相关的方法/事件失效：例如更改控制器属性失效；
+-   切换控制器。
+-   相机的位置、朝向会受到 Cesium 的控制。
+
+</blockquote>
+
+2. **canvas**：Cesium 会重新创建 canvas。
+
+<blockquote>
+
+-   鼠标事件失效/错误；
+
+</blockquote>
+
+3. **渲染器**：重新创建 canvas 后会重新创建渲染器。
+
+<blockquote>
+
+-   独立渲染是否需要渲染 Cesium 画面（多视图）
+-   后期处理：THREE 的后期渲染会错误
+
+</blockquote>
+
+![alt text](./img/image-4.png)
